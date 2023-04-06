@@ -7,6 +7,7 @@ from models.state import State
 class test_state(test_basemodel):
     """ """
 
+
     def __init__(self, *args, **kwargs):
         """ """
         super().__init__(*args, **kwargs)
