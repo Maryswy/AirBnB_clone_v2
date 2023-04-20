@@ -1,85 +1,100 @@
 #!/usr/bin/python3
-"""
-Este módulo define una clase para administrar el almacenamiento
-de la base de datos para el clon de hbnb
-"""
-from models.base_model import Base
-from sqlalchemy import create_engine
+"""DBStorage class that sets up SQLAlchemy and connects with database"""
+
+import os
+from sqlalchemy import (create_engine)
 from sqlalchemy.orm import sessionmaker, scoped_session
-from models.amenity import Amenity
+from models.base_model import Base
+from models.user import User
+from models.state import State
 from models.city import City
+from models.amenity import Amenity
 from models.place import Place
 from models.review import Review
-from models.state import State
-from models.user import User
-from os import getenv
+from models import classes
 import models
 
 class DBStorage:
+    """
+    DBStorage class
+    """
     __engine = None
     __session = None
 
+
     def __init__(self):
         """
-        Crea una instancia del almacenamiento de la base de datos para crear el motor
+        Initializes database connection
         """
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'. format(getenv("HBNB_MYSQL_USER"), getenv("HBNB_MYSQL_PWD"), getenv("HBNB_MYSQL_HOST"), getenv("HBNB_MYSQL_DB"), pool_pre_ping=True))
+        user_name = os.getenv("HBNB_MYSQL_USER")
+        pwd = os.getenv("HBNB_MYSQL_PWD")
+        host = os.getenv("HBNB_MYSQL_HOST")
+        db = os.getenv("HBNB_MYSQL_DB")
 
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(user_name, pwd, host, db), pool_pre_ping=True)
 
-        if getenv("HBNB_ENV ") == 'test':
-            Base.metadata.drop_all(self.__engine)
+        if os.getenv("HBNB_ENV") == 'test':
+            Base.metadata.drop_all(bind=self.__engine)
+
 
     def all(self, cls=None):
         """
-        consulta sobre la sesión actual de la base de datos
+        Retrieves dictionary of objects in database
+        Args:
+        cls (obj): class of objects to be queried
+        Returns:
+        dictionary of objects
         """
-        if not cls:
-            data_list = self.__session.query(Amenity)
-            data_list.extend(self.__session.query(City))
-            data_list.extend(self.__session.query(Place))
-            data_list.extend(self.__session.query(Review))
-            data_list.extend(self.__session.query(State))
-            data_list.extend(self.__session.query(User))
-        else:
-            data_list = self.__session.query(cls)
-        return {'{}.{}'.format(type(obj).__name__, obj.id): obj
-                for obj in data_list}
+        objs_dict = {}
+        objs = [v for k, v in classes.items()]
+        if cls:
+            if isinstance(cls, str):
+                cls = classes[cls]
+            objs = [cls]
+        for c in objs:
+            for instance in self.__session.query(c):
+                key = str(instance.__class__.__name__) + "." + str(instance.id)
+                objs_dict[key] = instance
+        return (objs_dict)
+
 
     def new(self, obj):
         """
-        Método para agregar el objeto a la
-        sesión actual de la base de datos
+        Creates a query on current db session depending on class name
         """
         self.__session.add(obj)
 
+
     def save(self):
         """
-        Método para confirmar todos los cambios de la
-        sesión actual de la base de datos
+        commit all changes of the current db session
         """
         self.__session.commit()
 
+
     def delete(self, obj=None):
         """
-        Método eliminar de la
-        sesión de base de datos actual obj si no es None
+        delete from current db session obj if not none
         """
-         # obj = cls.id, dentro de una clase, sería una fila de esa clase
-         if obj:
-             self.__session.delete(obj)
+        if obj:
+            self.__session.delete(obj)
+            self.save()
 
     def reload(self):
         """
-        crear todas las tablas en la base de datos
+        create all tb in db
+        create current db session and is thread safe
         """
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(
-                bind=self.__engine, expire_on_commit=False)
+        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
 
+
     def close(self):
         """
-        llamar al método remove() en el atributo de sesión privada
+        calls remove() method on the pricate session attribute
         """
-        self.__session.close()
+        if self.__session:
+            self.__session.close()
+
