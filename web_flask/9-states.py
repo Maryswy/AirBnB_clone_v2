@@ -1,51 +1,30 @@
 #!/usr/bin/python3
-from flask import Flask, render_template
+"""Start web application with two routings
 """
-intializing flask web app to listen on 0.0.0.0:5000
-"""
+
+from models import storage
+from models.state import State
 from flask import Flask, render_template
-from models import storage, classes
 app = Flask(__name__)
-app.url_map.strict_slashes = False
 
 
 @app.route('/states')
-@app.route('/states_list')
-def states_list():
+@app.route('/states/<id>')
+def states_list(id=None):
+    """Render template with states
     """
-    """
-    states = storage.all(classes["State"]).values()
-    return (render_template('7-states_list.html', states=states))
-
-
-@app.route('/states/<n>')
-def state_id(n):
-    """
-    routes /state/<id> to display state of given id
-    """
-    states = storage.all(classes["State"])
-    state_key = "State.{}".format(n)
-    if state_key in states:
-        state = states[state_key]
-    else:
-        state = None
-    return (render_template('9-states.html', state=state))
-
-
-@app.route('/cities_by_states')
-def cities_by_states():
-    """
-    """
-    states = storage.all(classes["State"]).values()
-    return (render_template('8-cities_by_states.html', states=states))
+    path = '9-states.html'
+    states = storage.all(State)
+    return render_template(path, states=states, id=id)
 
 
 @app.teardown_appcontext
-def teardown_db(exception):
-    """
+def app_teardown(arg=None):
+    """Clean-up session
     """
     storage.close()
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    app.url_map.strict_slashes = False
+    app.run(host='0.0.0.0', port=5000)
