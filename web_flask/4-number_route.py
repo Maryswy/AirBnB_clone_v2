@@ -1,52 +1,48 @@
 #!/usr/bin/python3
+"""Start web application with two routings
+"""
+
 from flask import Flask
-"""
-intializing flask web app to listen on 0.0.0.0:5000
-"""
 app = Flask(__name__)
-app.url_map.strict_slashes = False
 
 
 @app.route('/')
-def hello_world():
+def hello():
+    """Return string when route queried
     """
-    Display "Hello HBNB!"
-    """
-    return ('Hello HBNB!')
+    return 'Hello HBNB!'
+
 
 @app.route('/hbnb')
 def hbnb():
+    """Return string when route queried
     """
-    route /hbnb displays
-    """
-    return ('HBNB')
+    return 'HBNB'
 
 
 @app.route('/c/<text>')
-def c(text):
+def c_is_fun(text):
+    """Return reformatted text
     """
-    replaces _ with spaces
-    """
-    return ("C {}".format(text.replace('_', ' ')))
+    return 'C ' + text.replace('_', ' ')
 
 
-@app.route('/python')
+@app.route('/python/')
 @app.route('/python/<text>')
-def py(text="is cool"):
+def python_with_text(text='is cool'):
+    """Reformat text based on optional variable
     """
-    default adds is cool and replaces _ with space
-    """
-    return("Python {}".format(text.replace('_', ' ')))
+    return 'Python ' + text.replace('_', ' ')
 
 
 
 @app.route('/number/<int:n>')
-def num(n):
+def number(n=None):
+    """Allow request if path variable is a valid integer
     """
-    displays only if the added is an int
-    """
-    return ("{:d} is a number".format(n))
+    return str(n) + ' is a number'
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    app.url_map.strict_slashes = False
+    app.run(host='0.0.0.0', port=5000)
