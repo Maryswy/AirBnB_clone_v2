@@ -1,25 +1,24 @@
 #!/usr/bin/python3
-from flask import Flask
+"""Start web application with two routings
 """
-intializing flask web app to listen on 0.0.0.0:5000
-"""
-app = Flask(__name__)
-app.url_map.strict_slashes = False
 
+from flask import Flask
+app = Flask(__name__)
 
 @app.route('/')
-def hello_world():
+def hello():
+    """Return string when route queried
     """
-    Display "Hello HBNB!"
-    """
-    return ('Hello HBNB!')
+    return 'Hello HBNB!'
+
 
 @app.route('/hbnb')
 def hbnb():
+    """Return string when route queried
     """
-    route /hbnb displays
-    """
-    return ('HBNB')
+    return 'HBNB'
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+
+if __name__ == '__main__':
+    app.url_map.strict_slashes = False
+    app.run(host='0.0.0.0', port=5000)
