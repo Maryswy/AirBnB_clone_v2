@@ -1,30 +1,31 @@
 #!/usr/bin/python3
-from flask import Flask, render_template
+"""Start web application with two routings
 """
-intializing flask web app to listen on 0.0.0.0:5000
-"""
+
+from models import storage
+from models.state import State
+from models.amenity import Amenity
 from flask import Flask, render_template
-from models import storage, classes
 app = Flask(__name__)
-app.url_map.strict_slashes = False
 
 
 @app.route('/hbnb_filters')
-def filters():
+def hbnb_filters():
+    """Render template with states
     """
-    display HBNB HTML page
-    """
-    states = storage.all(classes["State"]).values()
-    amenities = storage.all(classes["Amenity"]).values()
-    return (render_template('10-hbnb_filters.html', states=states, amenities=amenities))
+    path = '10-hbnb_filters.html'
+    states = storage.all(State)
+    amenities = storage.all(Amenity)
+    return render_template(path, states=states, amenities=amenities)
 
 
 @app.teardown_appcontext
-def teardown_db(exception):
-    """
+def app_teardown(arg=None):
+    """Clean-up session
     """
     storage.close()
 
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+if __name__ == '__main__':
+    app.url_map.strict_slashes = False
+    app.run(host='0.0.0.0', port=5000)
