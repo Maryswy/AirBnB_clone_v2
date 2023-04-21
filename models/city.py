@@ -1,22 +1,19 @@
 #!/usr/bin/python3
-'''
-   Define the class City.
-'''
-
+"""This is the city class"""
+import models
 from models.base_model import BaseModel, Base
-from sqlalchemy import String, Column, ForeignKey
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-import os
+
 
 class City(BaseModel, Base):
-    '''
-       Define the class City that inherits from BaseModel.
-    '''
+    """This is the class for City
+    Attributes:
+        state_id: The state id
+        name: input name
+    """
+    # initialize class for file/db storage type
     __tablename__ = 'cities'
-    if os.getenv('HBNB_TYPE_STORAGE') == 'db':
-        state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
-        name = Column(String(128), nullable=False)
-        places = relationship("Place", passive_deletes=True, backref="cities")
-    else:
-        state_id = ""
-        name = ""
+    name = Column(String(128), nullable=False)
+    state_id = Column(String(60), ForeignKey('states.id'), nullable=False)
+    places = relationship('Place', cascade='all, delete', backref='cities')
