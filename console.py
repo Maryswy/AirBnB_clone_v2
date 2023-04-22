@@ -39,8 +39,8 @@ class HBNBCommand(cmd.Cmd):
             Exceptions:
             SyntaxError: when there is no args given
             NameError: when there is no object that has the name
-            """
-            try:
+        """
+                try:
                 if not line:
                     raise SyntaxError()
                 my_list = line.split(" ")  # split cmd line into list
